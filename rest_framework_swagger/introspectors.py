@@ -433,40 +433,25 @@ class ViewSetIntrospector(BaseViewIntrospector):
         return stuff
 
      def _resolve_methods(self):
+        import six
+
         callback = self.pattern.callback
-        try:
-            try:
-                closure = callback.func_closure
-            except AttributeError:
-                closure = callback.__closure__
-            try:
-                code = callback.func_code
-            except AttributeError:
-                code = callback.__code__
-            freevars = code.co_freevars
-        except AttributeError:
-             raise RuntimeError('Unable to use callback invalid closure/function specified.')
-     return closure[freevars.index('actions')].cell_contents
-
-    def __resolve_methods(self, pattern=None):
-        from .decorators import closure_n_code, get_closure_var
-        if pattern is None:
-            pattern = self.pattern
-        callback = pattern.callback
 
         try:
-            x = closure_n_code(callback)
+            closure = six.get_function_closure(callback)
+            code = six.get_function_code(callback)
 
-            while getattr(x.code, 'co_name') != 'view':
+            while getattr(code, 'co_name') != 'view':
                 # lets unwrap!
-                callback = get_closure_var(callback)
-                x = closure_n_code(callback)
+                view = getattr(closure[0], 'cell_contents')
+                closure = six.get_function_closure(view)
+                code = six.get_function_code(view)
 
-            freevars = x.code.co_freevars
+            freevars = code.co_freevars
         except (AttributeError, IndexError):
             raise RuntimeError('Unable to use callback invalid closure/function specified.')
         else:
-            return x.closure[freevars.index('actions')].cell_contents
+            return closure[freevars.index('actions')].cell_contents
 
 
 class ViewSetMethodIntrospector(BaseMethodIntrospector):
