@@ -446,6 +446,7 @@ class ViewSetIntrospector(BaseViewIntrospector):
             freevars = code.co_freevars
         except AttributeError:
              raise RuntimeError('Unable to use callback invalid closure/function specified.')
+     return closure[freevars.index('actions')].cell_contents
 
     def __resolve_methods(self, pattern=None):
         from .decorators import closure_n_code, get_closure_var
