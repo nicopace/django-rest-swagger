@@ -432,7 +432,22 @@ class ViewSetIntrospector(BaseViewIntrospector):
                 stuff.extend(self._resolve_methods(pattern).values())
         return stuff
 
-    def _resolve_methods(self, pattern=None):
+     def _resolve_methods(self):
+        callback = self.pattern.callback
+        try:
+            try:
+                closure = callback.func_closure
+            except AttributeError:
+                closure = callback.__closure__
+            try:
+                code = callback.func_code
+            except AttributeError:
+                code = callback.__code__
+            freevars = code.co_freevars
+        except AttributeError:
+             raise RuntimeError('Unable to use callback invalid closure/function specified.')
+
+    def __resolve_methods(self, pattern=None):
         from .decorators import closure_n_code, get_closure_var
         if pattern is None:
             pattern = self.pattern
