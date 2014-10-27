@@ -432,7 +432,7 @@ class ViewSetIntrospector(BaseViewIntrospector):
                 stuff.extend(self._resolve_methods(pattern).values())
         return stuff
 
-     def _resolve_methods(self):
+    def _resolve_methods(self):
         import six
 
         callback = self.pattern.callback
